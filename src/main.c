@@ -1,26 +1,13 @@
-#include <SDL2/SDL.h>
-#include <stdbool.h>
-
 #include <stdio.h>
 #include "application.h"
-#include "window.h"
 
-// Global program -- The first program that is run
-static application program;
-static window win, win2;
-
-void draw()
-{
-	window_begin_render(&win);	
-	window_end_render(&win);
-
-	window_begin_render(&win2);
-	window_end_render(&win2);
-}
-
+static context ctx;
 int main(int argc, char** argv)
 {
-	if (create_application(&program, "Test", 800, 600) != true)
+	application program;
+	window win, win2;
+
+	if (create_application(&program, "Test", 800, 600, &ctx) != true)
 	{
 		printf("Error creating application\n");
 		return 1;
@@ -28,13 +15,14 @@ int main(int argc, char** argv)
 
 	vec2 pos = {100, 100};
 	vec2 size = {200, 200};
-	win = create_window("Hello", pos, size, &program, 15);
+	win = create_window("Hello", pos, size, 15, &ctx);
 
 	vec2 pos2 = {530, 100};
 	vec2 size2 = {200, 200};
-	win2 = create_window("World", pos2, size2, &program, 25);
+	win2 = create_window("World", pos2, size2, 25, &ctx);
 
-	program.render = draw;
+	add_component(&program, &win, t_WINDOW);
+	add_component(&program, &win2, t_WINDOW);
 
 	run_application(&program);
 
@@ -45,4 +33,3 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-

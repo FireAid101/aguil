@@ -2,19 +2,19 @@
 #define WINDOW_H
 
 #include "data.h"
-#include "application.h"
+#include "context.h"
+#include <stdbool.h>
 
 typedef struct
 {
 	SDL_Rect frame, titlebar;
 	char *title;
-	application *program_ptr;
 	SDL_Texture *title_texture;
 	SDL_Rect text_dst;
-	bool is_focused;
+	bool visible;
+	context *ptr_context;
 } window;
 
-window create_window(char *title, vec2 position, vec2 size, application *ptr, int font_height);
-void window_begin_render(window *ptr); // For immediate mode
-void window_end_render(window *ptr); // For immediate mode
+window create_window(char *title, vec2 position, vec2 size, int font_height, context *ptr_context);
+void render_window(window *ptr_window);
 #endif
