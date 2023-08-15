@@ -60,9 +60,52 @@ void render_window(window *ptr_window)
 	SDL_SetRenderDrawColor(ren, 30, 30, 30, 255);
 	SDL_RenderFillRect(ren, &ptr_window->frame);
 
-	// Render border
 	SDL_RenderCopy(ren, ptr_window->title_texture, NULL, &ptr_window->text_dst);
-	SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
-	SDL_RenderDrawRect(ren, &border);
+	
+	// Render border
+	//SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
+	//SDL_RenderDrawRect(ren, &border);
 }
 
+void handle_window_movement(window *ptr_window)
+{
+	int mouse_x, mouse_y;
+	SDL_Point mouse_point;
+
+	switch(ptr_window->ptr_context->event_context->type)
+	{
+		case SDL_MOUSEBUTTONDOWN:
+			SDL_GetMouseState(&mouse_x, &mouse_y);
+			mouse_point.x = mouse_x;
+			mouse_point.y = mouse_y;
+			
+			if (SDL_PointInRect(&mouse_point, &ptr_window->titlebar) == SDL_TRUE)
+			{
+				ptr_window->grabbed = true;
+				ptr_window->offset.x = ptr_window->titlebar.x - mouse_point.x;
+				ptr_window->offset.y = ptr_window->titlebar.y - mouse_point.y;
+			}
+			
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			ptr_window->grabbed = false;
+			break;
+
+		case SDL_MOUSEMOTION:
+			if (ptr_window->grabbed == true)
+			{
+				SDL_GetMouseState(&mouse_x, &mouse_y);
+				mouse_point.x = mouse_x;
+				mouse_point.y = mouse_y;
+				ptr_window->titlebar.x = mouse_point.x + ptr_window->offset.x;
+			       	ptr_window->titlebar.y = mouse_point.y + ptr_window->offset.y;	
+				ptr_window->frame.x = ptr_window->titlebar.x;
+				ptr_window->frame.y = ptr_window->titlebar.y + ptr_window->titlebar.h;
+
+				ptr_window->text_dst.x = ptr_window->titlebar.x + 3;
+				ptr_window->text_dst.y = ptr_window->titlebar.y + 3;
+			}
+			break;
+	}
+}

@@ -56,6 +56,11 @@ void run_application(application *ptr_application)
 					break;
 			}
 
+			for (int i = 0; i < ptr_application->window_count; i++)
+			{
+				window *win_ptr = &ptr_application->ptr_windows[i];
+				handle_window_movement(win_ptr);
+			}
 		}
 
 		SDL_SetRenderDrawColor(ptr_application->ptr_context->ren_context, 0, 0, 0, 255);
