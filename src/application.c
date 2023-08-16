@@ -1,26 +1,31 @@
 #include "application.h"
+#include "context.h"
 
-bool create_application(application *ptr_application, const char *window_name, int width, int height, context *ptr_context)
+context *global_context;
+
+bool create_application(application *ptr_application, const char *window_name, int width, int height)
 {
+	context *ptr_context = malloc(sizeof(context));
+	global_context = ptr_context;		
+
 	// Start SDL2 and init the contexts
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 	
-	ptr_application->ptr_context = ptr_context;
-	ptr_application->ptr_context->win_context = SDL_CreateWindow(window_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+	ptr_context->win_context = SDL_CreateWindow(window_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
 
-	ptr_application->ptr_context->ren_context = SDL_CreateRenderer(ptr_application->ptr_context->win_context, -1 , 0);
+	ptr_context->ren_context = SDL_CreateRenderer(ptr_context->win_context, -1 , 0);
 
-	ptr_application->ptr_context->font_context = TTF_OpenFont("Roboto-Regular.ttf", 15);
+	ptr_context->font_context = TTF_OpenFont("Roboto-Regular.ttf", 15);
 
 	// Check to see if the contexts are working correctly
-	if (ptr_application->ptr_context->win_context == NULL || ptr_application->ptr_context->ren_context == NULL)
+	if (ptr_context->win_context == NULL || ptr_context->ren_context == NULL)
 	{
 		printf("AGUIL Error: Failed to create window %s.", window_name);
 		return false;
 	}
 
-	ptr_application->ptr_context->event_context = malloc(sizeof(SDL_Event));
+	ptr_context->event_context = malloc(sizeof(SDL_Event));
 
 	ptr_application->window_count = 0;
 	ptr_application->ptr_windows = NULL; 
@@ -30,13 +35,14 @@ bool create_application(application *ptr_application, const char *window_name, i
 
 bool close_application(application *ptr_application)
 {
-	free(ptr_application->ptr_context->event_context);
+	free(global_context->event_context);
 	free(ptr_application->ptr_windows);
-	SDL_DestroyRenderer(ptr_application->ptr_context->ren_context);
-	SDL_DestroyWindow(ptr_application->ptr_context->win_context);
-	TTF_CloseFont(ptr_application->ptr_context->font_context);
+	SDL_DestroyRenderer(global_context->ren_context);
+	SDL_DestroyWindow(global_context->win_context);
+	TTF_CloseFont(global_context->font_context);
 	TTF_Quit();
 	SDL_Quit();
+	free(global_context);
 	return true;
 }
 
@@ -47,9 +53,9 @@ void run_application(application *ptr_application)
 	while (!isDone)
 	{
 		// Handle events
-		while (SDL_PollEvent(ptr_application->ptr_context->event_context))
+		while (SDL_PollEvent(global_context->event_context))
 		{
-			switch (ptr_application->ptr_context->event_context->type)
+			switch (global_context->event_context->type)
 			{
 				case SDL_QUIT:
 					isDone = true;
@@ -63,8 +69,8 @@ void run_application(application *ptr_application)
 			}
 		}
 
-		SDL_SetRenderDrawColor(ptr_application->ptr_context->ren_context, 0, 0, 0, 255);
-		SDL_RenderClear(ptr_application->ptr_context->ren_context);
+		SDL_SetRenderDrawColor(global_context->ren_context, 0, 0, 0, 255);
+		SDL_RenderClear(global_context->ren_context);
 
 		for (int i = 0; i < ptr_application->window_count; i++)
 		{
@@ -72,33 +78,28 @@ void run_application(application *ptr_application)
 			render_window(&win);
 		}
 
-		SDL_RenderPresent(ptr_application->ptr_context->ren_context);
+		SDL_RenderPresent(global_context->ren_context);
 	}
 }
 
-void add_component(application *ptr, void *component, component_type type)
+void add_window(application *ptr, window *ptr_new_window)
 {
 	int index;
 	window *new_size;
 	window new_window;
 
-	switch (type)
-	{
-		case t_WINDOW:
-			new_window = *(window*)component;
-			index = ptr->window_count;
+	index = ptr->window_count;
 
-			if (index > 0)
-			{
-				new_size = realloc(ptr->ptr_windows, sizeof(window) * (index + 1));
-			}
-			else
-			{
-				new_size = malloc(sizeof(window));
-			}
-			ptr->ptr_windows = new_size;
-			ptr->ptr_windows[index] = new_window;
-			ptr->window_count++;	
-			break;
+	if (index > 0)
+	{
+		new_size = realloc(ptr->ptr_windows, sizeof(window) * (index + 1));
 	}
+	else
+	{
+		new_size = malloc(sizeof(window));
+	}
+	
+	ptr->ptr_windows = new_size;
+	ptr->ptr_windows[index] = *ptr_new_window;
+	ptr->window_count++;	
 }

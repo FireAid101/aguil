@@ -1,11 +1,14 @@
 #include "window.h"
+#include "context.h"
 
-window create_window(char *title, vec2 position, vec2 size, int font_height, context *ptr_context)
+window create_window(char *title, vec2 position, vec2 size, int font_height)
 {
+	context *ptr_context = global_context;
+
+	printf("%p\n", ptr_context);
 	window result;
 
 	result.visible = true;
-	result.ptr_context = ptr_context;
 
 	TTF_SetFontSize(ptr_context->font_context, font_height);
 
@@ -51,7 +54,7 @@ void render_window(window *ptr_window)
 	border.h = ptr_window->titlebar.h + ptr_window->frame.h;
 
 	// Make renderer pointer and push window to the stack
-	SDL_Renderer *ren = ptr_window->ptr_context->ren_context;
+	SDL_Renderer *ren = global_context->ren_context;
 
 	// Draw titlebar and frame
 	SDL_SetRenderDrawColor(ren, 60, 60, 60, 255);
@@ -72,7 +75,7 @@ void handle_window_movement(window *ptr_window)
 	int mouse_x, mouse_y;
 	SDL_Point mouse_point;
 
-	switch(ptr_window->ptr_context->event_context->type)
+	switch(global_context->event_context->type)
 	{
 		case SDL_MOUSEBUTTONDOWN:
 			SDL_GetMouseState(&mouse_x, &mouse_y);

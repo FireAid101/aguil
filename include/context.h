@@ -12,4 +12,6 @@ typedef struct
 	TTF_Font *font_context;
 }context;
 
+extern context *global_context;
+
 #endif
