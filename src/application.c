@@ -35,6 +35,15 @@ bool create_application(application *ptr_application, const char *window_name, i
 
 bool close_application(application *ptr_application)
 {
+	if (ptr_application->window_count > 0)
+	{
+		for (int i = 0; i < ptr_application->window_count; i++)
+		{
+			free_components(&ptr_application->ptr_windows[i]);
+			free(ptr_application->ptr_windows[i].components);
+			SDL_DestroyTexture(ptr_application->ptr_windows[i].title_texture);
+		}
+	}
 	free(global_context->event_context);
 	free(ptr_application->ptr_windows);
 	SDL_DestroyRenderer(global_context->ren_context);

@@ -8,6 +8,6 @@ file(GLOB_RECURSE SOURCES src/*.c)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-#cmake -S ./ -B build -DCMAKE_C_COMPILER=clang -- So that we can use clang
-
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} SDL2_ttf)
+
+#cmake -S ./ -B build -DCMAKE_C_COMPILER=clang -- if you want to use clang

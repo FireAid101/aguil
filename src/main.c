@@ -22,6 +22,13 @@ int main(int argc, char** argv)
 	vec2 size2 = {200, 200};
 	win2 = create_window("World", pos2, size2, 25);
 
+	color text_color = {255, 255, 255};
+	text new_text = create_text("Hello, world!", text_color); 
+
+	component new_component = create_new_component(ct_TEXT, &new_text);
+
+	add_component(&win, &new_component);
+	
 	// Add windows to the program
 	add_window(&program, &win);
 	add_window(&program, &win2);

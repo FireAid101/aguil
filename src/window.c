@@ -5,9 +5,12 @@ window create_window(char *title, vec2 position, vec2 size, int font_height)
 {
 	context *ptr_context = global_context;
 
-	printf("%p\n", ptr_context);
 	window result;
+	
+	result.components = NULL;
+	result.components_index = 0;
 
+	result.grabbed = false;
 	result.visible = true;
 
 	TTF_SetFontSize(ptr_context->font_context, font_height);
@@ -39,6 +42,9 @@ window create_window(char *title, vec2 position, vec2 size, int font_height)
 	result.frame.y = result.titlebar.y + result.titlebar.h;
 	result.frame.w = size.x;
 	result.frame.h = size.y;
+		
+	result.cursor.x = result.frame.x + 10;
+	result.cursor.y = result.frame.y + 10;
 
 	return result;
 }
@@ -68,6 +74,23 @@ void render_window(window *ptr_window)
 	// Render border
 	//SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
 	//SDL_RenderDrawRect(ren, &border);
+	
+	// Render all components
+	if (ptr_window->components_index > 0)
+	{
+		for (int i = 0; i < ptr_window->components_index; i++)
+		{
+			component *current_component = &ptr_window->components[i];
+			text *text_component;
+			switch (current_component->type)
+			{
+				case ct_TEXT:
+					text_component = (text*)current_component->ptr_data;
+					SDL_RenderCopy(ren, text_component->texture, NULL, &text_component->area);
+					break;
+			}
+		}
+	}
 }
 
 void handle_window_movement(window *ptr_window)
@@ -108,7 +131,103 @@ void handle_window_movement(window *ptr_window)
 
 				ptr_window->text_dst.x = ptr_window->titlebar.x + 3;
 				ptr_window->text_dst.y = ptr_window->titlebar.y + 3;
+			
+				ptr_window->cursor.x = ptr_window->frame.x + 10;
+				ptr_window->cursor.y = ptr_window->frame.y + 10;
+
+				if (ptr_window->components_index > 0)
+				{
+					for (int i = 0; i < ptr_window->components_index; i++)
+					{
+						component *current_component = &ptr_window->components[i];
+						text *txt;
+						switch (current_component->type)
+						{
+							case ct_TEXT:
+								txt = (text*)current_component->ptr_data;
+								
+								if (txt->own_position.x > 0)
+								{
+									txt->area.x = ptr_window->cursor.x + txt->own_position.x;
+									txt->area.y = ptr_window->cursor.y + txt->own_position.y;
+						
+									ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;
+								}
+								else 
+								{
+									txt->area.x = ptr_window->cursor.x;
+									txt->area.y = ptr_window->cursor.y;
+						
+									ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;	
+								}
+								break;
+						}
+		
+					}				
+				}	
 			}
 			break;
 	}
+}
+
+void add_component(window *ptr_window, component *ptr_component)
+{
+	text *txt;
+
+	int index = ptr_window->components_index;
+
+	if (index == 0)
+	{
+		ptr_window->components = malloc(sizeof(component));
+	}
+	else
+	{
+		component *new_size = realloc(ptr_window->components, index + 1);
+		ptr_window->components = new_size;
+	}
+
+	switch(ptr_component->type)		
+	{
+		case ct_TEXT:
+			txt = (text*)ptr_component->ptr_data;
+			
+			if (txt->area.x == -1)
+			{
+				txt->area.x = ptr_window->cursor.x;
+				txt->area.y = ptr_window->cursor.y;
+
+				ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;
+			}
+			else
+			{
+				txt->area.x = ptr_window->cursor.x + txt->area.x;
+				txt->area.y = ptr_window->cursor.y + txt->area.y;
+
+				ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;
+			}
+			
+			break;
+	}
+
+	ptr_window->components[index] = *ptr_component;
+	ptr_window->components_index++;	
+}
+
+void free_components(window *window)
+{
+	if (window->components_index > 0)
+	{
+		for (int i = 0; i < window->components_index; i++)
+		{
+			component *current_component = &window->components[i];
+			switch (current_component->type)
+			{
+				case ct_TEXT:
+					unload_text((text*)current_component->ptr_data);
+					break;
+			}
+
+		}
+	}
+
 }
