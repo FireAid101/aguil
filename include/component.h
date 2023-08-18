@@ -28,8 +28,8 @@ typedef struct
 	SDL_Point own_position;
 } text;
 
-text create_text(char *str, color text_color);
-text create_text_at(char *str, color text_color, int x, int y);
+text create_text(char *str, color text_color, int font_size, int window_width);
+text create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width);
 void unload_text(text *ptr_text);
 
 #endif

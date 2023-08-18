@@ -11,13 +11,14 @@ component create_new_component(component_type type, void *ptr_data)
 	return result;
 }
 
-text create_text(char *str, color text_color)
+text create_text(char *str, color text_color, int font_size, int window_width)
 {
 	text result;
 
 	result.data = str;
 	result.text_color = text_color;
 	
+	TTF_SetFontSize(global_context->font_context, font_size);
 	SDL_Surface *surf = TTF_RenderUTF8_Blended(global_context->font_context, str, result.text_color);
 	result.texture = SDL_CreateTextureFromSurface(global_context->ren_context, surf);
 	SDL_FreeSurface(surf);
@@ -36,14 +37,15 @@ text create_text(char *str, color text_color)
 	return result;
 }
 
-text create_text_at(char *str, color text_color, int x, int y)
+text create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width)
 {
 	text result;
 
 	result.data = str;
 	result.text_color = text_color;
 	
-	SDL_Surface *surf = TTF_RenderUTF8_Blended(global_context->font_context, str, result.text_color);
+	TTF_SetFontSize(global_context->font_context, font_size);
+	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, str, result.text_color, window_width - 20);
 	result.texture = SDL_CreateTextureFromSurface(global_context->ren_context, surf);
 	SDL_FreeSurface(surf);
 
