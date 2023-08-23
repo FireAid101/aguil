@@ -1,30 +1,24 @@
 #include "component.h"
 
-component create_new_component(component_type type, void *ptr_data)
+component create_text(char *str, color text_color, int font_size, int window_width)
 {
 	component result;
 
-	result.type = type;
-	result.ptr_data = ptr_data;
 	result.ptr_callback = NULL;
+	result.type = ct_text;
 
-	return result;
-}
+	text *text_component = malloc(sizeof(text));
 
-text create_text(char *str, color text_color, int font_size, int window_width)
-{
-	text result;
-
-	result.data = str;
-	result.text_color = text_color;
+	text_component->data = str;
+	text_component->text_color = text_color;
 	
 	TTF_SetFontSize(global_context->font_context, font_size);
-	SDL_Surface *surf = TTF_RenderUTF8_Blended(global_context->font_context, str, result.text_color);
-	result.texture = SDL_CreateTextureFromSurface(global_context->ren_context, surf);
+	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, str, text_component->text_color, window_width - 20);
+	text_component->texture = SDL_CreateTextureFromSurface(global_context->ren_context, surf);
 	SDL_FreeSurface(surf);
 
 	int w, h;
-	SDL_QueryTexture(result.texture, NULL, NULL, &w, &h);
+	SDL_QueryTexture(text_component->texture, NULL, NULL, &w, &h);
 
 	result.own_position.x = 0;
 	result.own_position.y = 0;
@@ -34,23 +28,29 @@ text create_text(char *str, color text_color, int font_size, int window_width)
 	result.area.w = w;
 	result.area.h = h;
 
+	result.ptr_data = text_component;
 	return result;
 }
 
-text create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width)
+component create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width)
 {
-	text result;
+	component result;
 
-	result.data = str;
-	result.text_color = text_color;
+	result.type = ct_text;
+	result.ptr_callback = NULL;
+
+	text *text_component = malloc(sizeof(text));
+
+	text_component->data = str;
+	text_component->text_color = text_color;
 	
 	TTF_SetFontSize(global_context->font_context, font_size);
-	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, str, result.text_color, window_width - 20);
-	result.texture = SDL_CreateTextureFromSurface(global_context->ren_context, surf);
+	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, str, text_component->text_color, window_width - x - 20);
+	text_component->texture = SDL_CreateTextureFromSurface(global_context->ren_context, surf);
 	SDL_FreeSurface(surf);
 
 	int w, h;
-	SDL_QueryTexture(result.texture, NULL, NULL, &w, &h);
+	SDL_QueryTexture(text_component->texture, NULL, NULL, &w, &h);
 
 	result.own_position.x = x;
 	result.own_position.y = y;
@@ -60,10 +60,12 @@ text create_text_at(char *str, color text_color, int x, int y, int font_size, in
 	result.area.w = w;
 	result.area.h = h;
 
+	result.ptr_data = text_component;
 	return result;
 }
 
 void unload_text(text *ptr_text)
 {
 	SDL_DestroyTexture(ptr_text->texture);
+	free(ptr_text);
 }

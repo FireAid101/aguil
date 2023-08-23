@@ -72,8 +72,8 @@ void render_window(window *ptr_window)
 	SDL_RenderCopy(ren, ptr_window->title_texture, NULL, &ptr_window->text_dst);
 	
 	// Render border
-	//SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
-	//SDL_RenderDrawRect(ren, &border);
+	SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
+	SDL_RenderDrawRect(ren, &border);
 	
 	// Render all components
 	if (ptr_window->components_index > 0)
@@ -84,9 +84,9 @@ void render_window(window *ptr_window)
 			text *text_component;
 			switch (current_component->type)
 			{
-				case ct_TEXT:
+				case ct_text:
 					text_component = (text*)current_component->ptr_data;
-					SDL_RenderCopy(ren, text_component->texture, NULL, &text_component->area);
+					SDL_RenderCopy(ren, text_component->texture, NULL, &current_component->area);
 					break;
 			}
 		}
@@ -118,6 +118,7 @@ void handle_window_movement(window *ptr_window)
 			ptr_window->grabbed = false;
 			break;
 
+		// Shifts window and all components inside irrespective of the component type	
 		case SDL_MOUSEMOTION:
 			if (ptr_window->grabbed == true)
 			{
@@ -140,29 +141,21 @@ void handle_window_movement(window *ptr_window)
 					for (int i = 0; i < ptr_window->components_index; i++)
 					{
 						component *current_component = &ptr_window->components[i];
-						text *txt;
-						switch (current_component->type)
-						{
-							case ct_TEXT:
-								txt = (text*)current_component->ptr_data;
 								
-								if (txt->own_position.x > 0)
-								{
-									txt->area.x = ptr_window->cursor.x + txt->own_position.x;
-									txt->area.y = ptr_window->cursor.y + txt->own_position.y;
+						if (current_component->own_position.x > 0)
+						{
+							current_component->area.x = ptr_window->cursor.x + current_component->own_position.x;
+							current_component->area.y = ptr_window->cursor.y + current_component->own_position.y;
 						
-									ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;
-								}
-								else 
-								{
-									txt->area.x = ptr_window->cursor.x;
-									txt->area.y = ptr_window->cursor.y;
-						
-									ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;	
-								}
-								break;
+							ptr_window->cursor.y += current_component->area.h + LINE_BREAK_SIZE;
 						}
-		
+						else 
+						{
+							current_component->area.x = ptr_window->cursor.x;
+							current_component->area.y = ptr_window->cursor.y;
+						
+							ptr_window->cursor.y += current_component->area.h + LINE_BREAK_SIZE;	
+						}
 					}				
 				}	
 			}
@@ -176,6 +169,7 @@ void add_component(window *ptr_window, component *ptr_component)
 
 	int index = ptr_window->components_index;
 
+	// Allocate memory without error
 	if (index == 0)
 	{
 		ptr_window->components = malloc(sizeof(component));
@@ -186,33 +180,27 @@ void add_component(window *ptr_window, component *ptr_component)
 		ptr_window->components = new_size;
 	}
 
-	switch(ptr_component->type)		
+  // If the component has a user-defined position
+	if (ptr_component->area.x == -1)
 	{
-		case ct_TEXT:
-			txt = (text*)ptr_component->ptr_data;
-			
-			if (txt->area.x == -1)
-			{
-				txt->area.x = ptr_window->cursor.x;
-				txt->area.y = ptr_window->cursor.y;
+		ptr_component->area.x = ptr_window->cursor.x;
+		ptr_component->area.y = ptr_window->cursor.y;
 
-				ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;
-			}
-			else
-			{
-				txt->area.x = ptr_window->cursor.x + txt->area.x;
-				txt->area.y = ptr_window->cursor.y + txt->area.y;
+		ptr_window->cursor.y += ptr_component->area.h + LINE_BREAK_SIZE;
+	}	
+	else
+	{
+		ptr_component->area.x = ptr_window->cursor.x + ptr_component->area.x;
+		ptr_component->area.y = ptr_window->cursor.y + ptr_component->area.y;
 
-				ptr_window->cursor.y += txt->area.h + LINE_BREAK_SIZE;
-			}
-			
-			break;
+		ptr_window->cursor.y += ptr_component->area.h + LINE_BREAK_SIZE;
 	}
 
 	ptr_window->components[index] = *ptr_component;
 	ptr_window->components_index++;	
 }
 
+// Frees based on component type
 void free_components(window *window)
 {
 	if (window->components_index > 0)
@@ -222,7 +210,7 @@ void free_components(window *window)
 			component *current_component = &window->components[i];
 			switch (current_component->type)
 			{
-				case ct_TEXT:
+				case ct_text:
 					unload_text((text*)current_component->ptr_data);
 					break;
 			}

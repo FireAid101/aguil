@@ -23,11 +23,8 @@ int main(int argc, char** argv)
 	win2 = create_window("World", pos2, size2, 25);
 
 	color text_color = {255, 255, 255};
-	text new_text = create_text("Hello, world!", text_color, 15, win.frame.w); 
-	text new_text2 = create_text_at("Hello, world for the second time!",text_color, 10, 50, 15, win2.frame.w); 
-
-	component new_component = create_new_component(ct_TEXT, &new_text);
-	component new_component2 = create_new_component(ct_TEXT, &new_text2);
+	component new_component = create_text("Hello, world!", text_color, 15, win.frame.w); 
+	component new_component2 = create_text_at("Hello, world for the second time!",text_color, 10, 50, 15, win2.frame.w); 
 
 	add_component(&win, &new_component);
 	add_component(&win2, &new_component2);
