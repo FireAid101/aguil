@@ -1,13 +1,16 @@
 #ifndef COMPONENT_H
+
 #define COMPONENT_H
 
 #include "context.h"
+#include <stdbool.h>
 
 typedef SDL_Color color;
 
 typedef enum
 {
 	ct_text,
+	ct_button,
 } component_type;
 
 typedef struct
@@ -22,6 +25,8 @@ typedef struct
 component create_text(char *str, color text_color, int font_size, int window_width);
 component create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width);
 
+component create_button(char *text, color button_color, color text_color, color highlighted, color clicked, int font_size, int window_width, void *ptr_clicked);
+
 typedef struct
 {
 	char *data;
@@ -29,5 +34,18 @@ typedef struct
 	SDL_Texture *texture;
 } text;
 void unload_text(text *ptr_text);
+
+typedef struct
+{
+	char *text;
+	color text_color, button_color, button_highlighted_color, button_clicked_color;
+
+	bool is_clicked;
+	color current_color;
+	SDL_Texture *texture;
+} button;
+
+void handle_button_events(component *ptr_button);
+void unload_button(button *ptr_button);
 
 #endif

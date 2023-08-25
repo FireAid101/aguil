@@ -84,6 +84,22 @@ void run_application(application *ptr_application)
 		for (int i = 0; i < ptr_application->window_count; i++)
 		{
 			window win = ptr_application->ptr_windows[i];
+			
+			int index = 0;
+			
+			while (index != win.components_index)
+			{
+				component *current_component = &win.components[index];
+					
+				switch (current_component->type)
+				{
+					case ct_button:
+						handle_button_events(current_component);
+						break;
+				}
+				index++;
+			}
+
 			render_window(&win);
 		}
 

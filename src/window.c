@@ -82,11 +82,29 @@ void render_window(window *ptr_window)
 		{
 			component *current_component = &ptr_window->components[i];
 			text *text_component;
+			button *button_component;
+
 			switch (current_component->type)
 			{
 				case ct_text:
 					text_component = (text*)current_component->ptr_data;
 					SDL_RenderCopy(ren, text_component->texture, NULL, &current_component->area);
+					break;
+
+				case ct_button:
+					button_component = (button*)current_component->ptr_data;
+					
+					SDL_Rect text_rect = current_component->area;
+					
+					SDL_SetRenderDrawColor(ren, button_component->current_color.r , button_component->current_color.g, button_component->current_color.b, 255);
+					SDL_RenderFillRect(ren, &current_component->area);		
+		
+					text_rect.x += 10;
+					text_rect.y += 3;
+					text_rect.w -= 20;
+					text_rect.h -= 6;
+
+					SDL_RenderCopy(ren, button_component->texture, NULL, &text_rect);
 					break;
 			}
 		}
@@ -165,18 +183,16 @@ void handle_window_movement(window *ptr_window)
 
 void add_component(window *ptr_window, component *ptr_component)
 {
-	text *txt;
-
 	int index = ptr_window->components_index;
-
-	// Allocate memory without error
+	
+// Allocate memory without error
 	if (index == 0)
 	{
 		ptr_window->components = malloc(sizeof(component));
 	}
 	else
 	{
-		component *new_size = realloc(ptr_window->components, index + 1);
+		component *new_size = realloc(ptr_window->components, (index + 1) * sizeof(component));
 		ptr_window->components = new_size;
 	}
 
@@ -212,6 +228,10 @@ void free_components(window *window)
 			{
 				case ct_text:
 					unload_text((text*)current_component->ptr_data);
+					break;
+
+				case ct_button:
+					unload_button((button*)current_component->ptr_data);
 					break;
 			}
 
