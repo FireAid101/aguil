@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <SDL2/SDL.h>
+
+typedef SDL_Color color;
 
 typedef struct
 {

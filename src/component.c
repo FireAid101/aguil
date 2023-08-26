@@ -1,6 +1,6 @@
 #include "component.h"
 
-component create_text(char *str, color text_color, int font_size, int window_width)
+component create_text(char *str, int font_size, int window_width)
 {
 	component result;
 
@@ -10,7 +10,7 @@ component create_text(char *str, color text_color, int font_size, int window_wid
 	text *text_component = malloc(sizeof(text));
 
 	text_component->data = str;
-	text_component->text_color = text_color;
+	text_component->text_color = global_context->style_context->text;
 	
 	TTF_SetFontSize(global_context->font_context, font_size);
 	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, str, text_component->text_color, window_width - 20);
@@ -32,7 +32,7 @@ component create_text(char *str, color text_color, int font_size, int window_wid
 	return result;
 }
 
-component create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width)
+component create_text_at(char *str, int x, int y, int font_size, int window_width)
 {
 	component result;
 
@@ -42,7 +42,7 @@ component create_text_at(char *str, color text_color, int x, int y, int font_siz
 	text *text_component = malloc(sizeof(text));
 
 	text_component->data = str;
-	text_component->text_color = text_color;
+	text_component->text_color = global_context->style_context->text;
 	
 	TTF_SetFontSize(global_context->font_context, font_size);
 	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, str, text_component->text_color, window_width - x - 20);
@@ -70,7 +70,7 @@ void unload_text(text *ptr_text)
 	free(ptr_text);
 }
 
-component create_button(char *text, color button_color, color text_color, color highlighted, color clicked, int font_size, int window_width, void *ptr_clicked)
+component create_button(char *text, int font_size, int window_width, void *ptr_clicked)
 {
 	component result;
 
@@ -81,11 +81,11 @@ component create_button(char *text, color button_color, color text_color, color 
 	
 	button_component->is_clicked = false;
 	button_component->text = text;
-	button_component->text_color = text_color;
-	button_component->button_color = button_color;
-	button_component->current_color = button_color;
-	button_component->button_highlighted_color = highlighted;
-	button_component->button_clicked_color = clicked;
+	button_component->text_color = global_context->style_context->text;
+	button_component->button_color = global_context->style_context->button;
+	button_component->current_color = button_component->button_color;
+	button_component->button_highlighted_color = global_context->style_context->button_highlighted;
+	button_component->button_clicked_color = global_context->style_context->button_clicked;
 
 	TTF_SetFontSize(global_context->font_context, font_size);
 	SDL_Surface *surf = TTF_RenderUTF8_Blended_Wrapped(global_context->font_context, text, button_component->text_color, window_width - 20);

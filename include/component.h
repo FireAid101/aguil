@@ -3,9 +3,8 @@
 #define COMPONENT_H
 
 #include "context.h"
+#include "data.h"
 #include <stdbool.h>
-
-typedef SDL_Color color;
 
 typedef enum
 {
@@ -22,10 +21,10 @@ typedef struct
 	void (*ptr_callback)(); // Really depends on the type of component
 } component;
 
-component create_text(char *str, color text_color, int font_size, int window_width);
-component create_text_at(char *str, color text_color, int x, int y, int font_size, int window_width);
+component create_text(char *str, int font_size, int window_width);
+component create_text_at(char *str, int x, int y, int font_size, int window_width);
 
-component create_button(char *text, color button_color, color text_color, color highlighted, color clicked, int font_size, int window_width, void *ptr_clicked);
+component create_button(char *text, int font_size, int window_width, void *ptr_clicked);
 
 typedef struct
 {

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "context.h"
 #include "application.h"
+#include "style.h"
 
 void clicked()
 {
@@ -18,6 +19,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	set_style_to_dark();
 	// Create windows
 	vec2 pos = {100, 100};
 	vec2 size = {200, 200};
@@ -27,16 +29,12 @@ int main(int argc, char** argv)
 	vec2 size2 = {200, 200};
 	win2 = create_window("World", pos2, size2, 25);
 
-	color text_color = {255, 255, 255};
-	component new_component = create_text("Hello, world!", text_color, 15, win.frame.w); 
-	component new_component2 = create_text_at("Hello, world for the second time!",text_color, 10, 50, 15, win2.frame.w); 
+	component new_component = create_text("Hello, world!", 15, win.frame.w); 
+	component new_component2 = create_text_at("Hello, world for the second time!", 10, 50, 15, win2.frame.w); 
 
-	color button_color = {125, 125, 125};
-	color highlighted_color = {100, 100, 100};
-	color clicked_color = {200, 200, 200};
-	component new_component3 = create_button("Click me", button_color, text_color, highlighted_color, clicked_color, 15, win.frame.w, clicked);
+	component new_component3 = create_button("Click me", 15, win.frame.w, clicked);
 
-	component new_component4 = create_text("hi!", text_color, 15, win.frame.w);
+	component new_component4 = create_text("hi!", 15, win.frame.w);
 
 	add_component(&win, &new_component);
 	add_component(&win2, &new_component2);

@@ -44,6 +44,7 @@ bool close_application(application *ptr_application)
 			SDL_DestroyTexture(ptr_application->ptr_windows[i].title_texture);
 		}
 	}
+	free(global_context->style_context);
 	free(global_context->event_context);
 	free(ptr_application->ptr_windows);
 	SDL_DestroyRenderer(global_context->ren_context);

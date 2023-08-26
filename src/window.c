@@ -16,7 +16,7 @@ window create_window(char *title, vec2 position, vec2 size, int font_height)
 	TTF_SetFontSize(ptr_context->font_context, font_height);
 
 	// Load font
-	SDL_Color text_color = {255, 255, 255};
+	SDL_Color text_color = ptr_context->style_context->text;
 	SDL_Surface *surface = TTF_RenderUTF8_Blended(ptr_context->font_context, title, text_color);
 	result.title_texture = SDL_CreateTextureFromSurface(ptr_context->ren_context, surface);
 	SDL_FreeSurface(surface);
@@ -61,18 +61,24 @@ void render_window(window *ptr_window)
 
 	// Make renderer pointer and push window to the stack
 	SDL_Renderer *ren = global_context->ren_context;
+	
+	// Get colors
+	color titlebar, frame, border_color;
+	titlebar = global_context->style_context->window_titlebar;
+	frame = global_context->style_context->window_frame;
+	border_color = global_context->style_context->window_border;
 
 	// Draw titlebar and frame
-	SDL_SetRenderDrawColor(ren, 60, 60, 60, 255);
+	SDL_SetRenderDrawColor(ren, titlebar.r, titlebar.g, titlebar.b, 255);
 	SDL_RenderFillRect(ren, &ptr_window->titlebar);
 
-	SDL_SetRenderDrawColor(ren, 30, 30, 30, 255);
+	SDL_SetRenderDrawColor(ren, frame.r, frame.g, frame.b, 255);
 	SDL_RenderFillRect(ren, &ptr_window->frame);
 
 	SDL_RenderCopy(ren, ptr_window->title_texture, NULL, &ptr_window->text_dst);
 	
 	// Render border
-	SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
+	SDL_SetRenderDrawColor(ren, border_color.r, border_color.g, border_color.b, 255);
 	SDL_RenderDrawRect(ren, &border);
 	
 	// Render all components
