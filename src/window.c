@@ -46,6 +46,9 @@ window create_window(char *title, vec2 position, vec2 size, int font_height)
 	result.cursor.x = result.frame.x + 10;
 	result.cursor.y = result.frame.y + 10;
 
+	// create exit button
+	result.exit_button = create_button("x", font_height, size.x,{result.visible = false});	
+
 	return result;
 }
 
@@ -67,54 +70,74 @@ void render_window(window *ptr_window)
 	titlebar = global_context->style_context->window_titlebar;
 	frame = global_context->style_context->window_frame;
 	border_color = global_context->style_context->window_border;
-
-	// Draw titlebar and frame
-	SDL_SetRenderDrawColor(ren, titlebar.r, titlebar.g, titlebar.b, 255);
-	SDL_RenderFillRect(ren, &ptr_window->titlebar);
-
-	SDL_SetRenderDrawColor(ren, frame.r, frame.g, frame.b, 255);
-	SDL_RenderFillRect(ren, &ptr_window->frame);
-
-	SDL_RenderCopy(ren, ptr_window->title_texture, NULL, &ptr_window->text_dst);
 	
-	// Render border
-	SDL_SetRenderDrawColor(ren, border_color.r, border_color.g, border_color.b, 255);
-	SDL_RenderDrawRect(ren, &border);
-	
-	// Render all components
-	if (ptr_window->components_index > 0)
+	if (ptr_window->visible == true)
 	{
-		for (int i = 0; i < ptr_window->components_index; i++)
-		{
-			component *current_component = &ptr_window->components[i];
-			text *text_component;
-			button *button_component;
+		// Draw titlebar and frame
+		SDL_SetRenderDrawColor(ren, titlebar.r, titlebar.g, titlebar.b, 255);
+		SDL_RenderFillRect(ren, &ptr_window->titlebar);
 
-			switch (current_component->type)
-			{
-				case ct_text:
-					text_component = (text*)current_component->ptr_data;
-					SDL_RenderCopy(ren, text_component->texture, NULL, &current_component->area);
-					break;
-
-				case ct_button:
-					button_component = (button*)current_component->ptr_data;
-					
-					SDL_Rect text_rect = current_component->area;
-					
-					SDL_SetRenderDrawColor(ren, button_component->current_color.r , button_component->current_color.g, button_component->current_color.b, 255);
-					SDL_RenderFillRect(ren, &current_component->area);		
+		// Render exit button
+		button *exit_button = (button*)ptr_window->exit_button.ptr_data;
 		
-					text_rect.x += 10;
-					text_rect.y += 3;
-					text_rect.w -= 20;
-					text_rect.h -= 6;
+		ptr_window->exit_button.area.x = (titlebar.x + titlebar.w) - ptr_window_exit_button.area.w - 10;
+		ptr_window->exit_button.area.y = titlebar.y + 3;	
 
-					SDL_RenderCopy(ren, button_component->texture, NULL, &text_rect);
-					break;
+		SDL_Rect text_rect = ptr_window->exit_button.area;
+		
+		SDL_SetRenderDrawColor(ren, exit_button->current_color.r , exit_button->current_color.g, exit_button->current_color.b, 255);
+		SDL_RenderFillRect(ren, ptr_window->exit_button.area);		
+		
+		text_rect.x += 10;
+		text_rect.y += 3;
+		text_rect.w -= 20;
+		text_rect.h -= 6;
+
+		SDL_RenderCopy(ren, button_component->texture, NULL, &text_rect);
+		SDL_SetRenderDrawColor(ren, frame.r, frame.g, frame.b, 255);
+		SDL_RenderFillRect(ren, &ptr_window->frame);
+
+		SDL_RenderCopy(ren, ptr_window->title_texture, NULL, &ptr_window->text_dst);
+	
+		// Render border
+		SDL_SetRenderDrawColor(ren, border_color.r, border_color.g, border_color.b, 255);
+		SDL_RenderDrawRect(ren, &border);
+	
+		// Render all components
+		if (ptr_window->components_index > 0)
+		{
+			for (int i = 0; i < ptr_window->components_index; i++)
+			{
+				component *current_component = &ptr_window->components[i];
+				text *text_component;
+				button *button_component;
+
+				switch (current_component->type)
+				{
+					case ct_text:
+						text_component = (text*)current_component->ptr_data;
+						SDL_RenderCopy(ren, text_component->texture, NULL, &current_component->area);
+						break;
+
+					case ct_button:
+						button_component = (button*)current_component->ptr_data;
+					
+						SDL_Rect text_rect = current_component->area;
+					
+						SDL_SetRenderDrawColor(ren, button_component->current_color.r , button_component->current_color.g, button_component->current_color.b, 255);
+						SDL_RenderFillRect(ren, &current_component->area);		
+		
+						text_rect.x += 10;
+						text_rect.y += 3;
+						text_rect.w -= 20;
+						text_rect.h -= 6;
+
+						SDL_RenderCopy(ren, button_component->texture, NULL, &text_rect);
+						break;
+				}
 			}
 		}
-	}
+	}	
 }
 
 void handle_window_movement(window *ptr_window)

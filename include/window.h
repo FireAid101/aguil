@@ -21,6 +21,8 @@ typedef struct
 	int components_index;
 	component *components;
 
+	component exit_button;
+
 	SDL_Point offset;
 	bool grabbed;
 } window;
