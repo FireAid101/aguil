@@ -5,7 +5,7 @@
 
 void clicked()
 {
-	printf("Clicked\n");
+
 }
 
 int main(int argc, char** argv)
@@ -33,9 +33,8 @@ int main(int argc, char** argv)
 	component new_component2 = create_text_at("Hello, world for the second time!", 10, 50, 15, win2.frame.w); 
 
 	component new_component3 = create_button("Click me", 15, win.frame.w, clicked);
-
 	component new_component4 = create_text("hi!", 15, win.frame.w);
-
+	
 	add_component(&win, &new_component);
 	add_component(&win2, &new_component2);
 	add_component(&win, &new_component3);
